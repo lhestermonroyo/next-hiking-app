@@ -1,11 +1,8 @@
 'use client';
-
-import z from 'zod';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { cn } from '@/lib/utils';
 import { signUpSchema } from '@/features/auth/actions/schemas';
-import supabase from '@/lib/supabase/client';
 import { Button } from '@/components/ui/button';
 import {
   Card,
@@ -23,8 +20,10 @@ import {
   FormMessage
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
+import { signUp } from '../actions/auth';
+import z from 'zod';
 import { toast } from 'sonner';
-import { saveUser } from '../actions/db';
+import { redirect } from 'next/navigation';
 
 export function SignUpForm({
   className,
@@ -33,89 +32,40 @@ export function SignUpForm({
   const form = useForm({
     resolver: zodResolver(signUpSchema),
     defaultValues: {
-      firstName: '',
-      lastName: '',
       email: '',
       password: '',
       confirmPassword: ''
-    }
+    },
+    mode: 'onTouched'
   });
 
-  const onSubmit = async (data: z.infer<typeof signUpSchema>) => {
-    const { error, data: userData } = await supabase.auth.signUp({
-      email: data.email,
-      password: data.password
-    });
+  async function onSubmit(values: z.infer<typeof signUpSchema>) {
+    const result = await signUp(values);
 
-    if (error) {
-      toast.error(error.message);
-      return;
+    if (result.error) {
+      toast.error(result.message);
     }
 
-    if (userData.user) {
-      await saveUser({
-        firstName: data.firstName,
-        lastName: data.lastName,
-        email: data.email
-      });
+    if (!result.error) {
+      toast.success(result.message);
+      redirect('/auth/login');
     }
-
-    toast.success('Account created successfully!', {
-      description: 'Please check your email to confirm your account.',
-      dismissible: true
-    });
-  };
+  }
 
   return (
     <div className={cn('flex flex-col gap-6', className)} {...props}>
       <Card>
         <CardHeader className="text-center">
           <CardTitle className="text-xl">Create your Account</CardTitle>
-          <CardDescription>Fill-in the form to get started</CardDescription>
+          <CardDescription>
+            Sign up with your email address to get started.
+          </CardDescription>
         </CardHeader>
         <CardContent>
           <div className="grid gap-6">
             <Form {...form}>
               <form onSubmit={form.handleSubmit(onSubmit)}>
                 <div className="grid gap-6">
-                  <FormField
-                    name="firstName"
-                    control={form.control}
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>First Name</FormLabel>
-                        <div className="grid">
-                          <FormControl>
-                            <Input
-                              {...field}
-                              type="text"
-                              placeholder="Enter your first name"
-                            />
-                          </FormControl>
-                          <FormMessage />
-                        </div>
-                      </FormItem>
-                    )}
-                  />
-                  <FormField
-                    name="lastName"
-                    control={form.control}
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Last Name</FormLabel>
-                        <div className="grid">
-                          <FormControl>
-                            <Input
-                              {...field}
-                              type="text"
-                              placeholder="Enter your last name"
-                            />
-                          </FormControl>
-                          <FormMessage />
-                        </div>
-                      </FormItem>
-                    )}
-                  />
                   <FormField
                     name="email"
                     control={form.control}

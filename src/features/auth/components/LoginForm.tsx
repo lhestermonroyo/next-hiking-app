@@ -1,13 +1,13 @@
 'use client';
-
 import z from 'zod';
-import { redirect } from 'next/navigation';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { cn } from '@/lib/utils';
 import { loginSchema } from '@/features/auth/actions/schemas';
-import supabase from '@/lib/supabase/client';
-import { signInWithGoogle } from '@/features/auth/actions/auth';
+import {
+  signInWithGoogle,
+  signInWithPassword
+} from '@/features/auth/actions/auth';
 import { Button } from '@/components/ui/button';
 import {
   Card,
@@ -26,6 +26,7 @@ import {
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { toast } from 'sonner';
+import { redirect } from 'next/navigation';
 
 export function LoginForm({
   className,
@@ -36,27 +37,33 @@ export function LoginForm({
     defaultValues: {
       email: '',
       password: ''
-    }
+    },
+    mode: 'onTouched'
   });
 
-  const onSubmit = async (data: z.infer<typeof loginSchema>) => {
-    const { error } = await supabase.auth.signInWithPassword({
-      email: data.email,
-      password: data.password
-    });
+  async function onGoogleLogin() {
+    const result = await signInWithGoogle();
 
-    if (error) {
-      toast.error(error.message);
+    if (result.error) {
+      toast.error(result.message);
+    }
+  }
+
+  async function onSubmit(values: z.infer<typeof loginSchema>) {
+    const result = await signInWithPassword(values);
+
+    if (result.error) {
+      toast.error(result.message);
     }
 
     redirect('/');
-  };
+  }
 
   return (
     <div className={cn('flex flex-col gap-6', className)} {...props}>
       <Card>
         <CardHeader className="text-center">
-          <CardTitle className="text-xl">Welcome back</CardTitle>
+          <CardTitle className="text-xl">Hello there!</CardTitle>
           <CardDescription>Login with your Google account</CardDescription>
         </CardHeader>
         <CardContent>
@@ -65,7 +72,7 @@ export function LoginForm({
               <Button
                 variant="outline"
                 className="w-full"
-                onClick={signInWithGoogle}
+                onClick={onGoogleLogin}
               >
                 <GoogleIcon />
                 Login with Google

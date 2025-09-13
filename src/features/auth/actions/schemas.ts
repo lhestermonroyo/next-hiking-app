@@ -7,10 +7,6 @@ export const loginSchema = z.object({
 
 export const signUpSchema = z
   .object({
-    firstName: z
-      .string()
-      .min(2, 'First Name must be at least 2 characters long'),
-    lastName: z.string().min(2, 'Last Name must be at least 2 characters long'),
     email: z.string().email().min(1, 'Email is required'),
     password: z.string().min(6, 'Password must be at least 6 characters long'),
     confirmPassword: z
@@ -21,3 +17,11 @@ export const signUpSchema = z
     message: 'Passwords must match',
     path: ['confirmPassword']
   });
+
+export const profileSchema = z.object({
+  firstName: z.string().min(1, 'First name is required'),
+  lastName: z.string().min(1, 'Last name is required'),
+  phone: z.string().min(10, 'Phone number must be at least 10 digits long'),
+  role: z.enum(['hiker', 'admin', 'superadmin']).nullable(),
+  avatar: z.file().nullable()
+});

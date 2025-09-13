@@ -1,21 +1,73 @@
-import supabase from '@/lib/supabase/client';
+'use server';
 import z from 'zod';
-import { signUpSchema } from './schemas';
-import { toast } from 'sonner';
+import { profileSchema } from './schemas';
+import { saveAvatarToStorage } from './storage';
+import { createClientForServer } from '@/lib/supabase/server';
 
-const saveUser = async (
-  user: Pick<z.infer<typeof signUpSchema>, 'firstName' | 'lastName' | 'email'>
+const saveProfile = async (
+  user: Pick<
+    z.infer<typeof profileSchema>,
+    'firstName' | 'lastName' | 'role' | 'phone' | 'avatar'
+  >
 ) => {
-  const { error, data } = await supabase.from('users').insert({
+  const supabase = await createClientForServer();
+  const { data } = await supabase.auth.getUser();
+
+  const id = data.user?.id;
+  const email = data.user?.email;
+  let avatarUrl: string | null = null;
+
+  if (!user.avatar) {
+    avatarUrl = data.user?.user_metadata?.avatar_url || null;
+  } else {
+    const path = `${id}/avatar.png`;
+    const result = await saveAvatarToStorage(user.avatar, path);
+    console.log('saveAvatarToStorage result', result);
+
+    if (result.error) {
+      return {
+        error: true,
+        message: result.message || 'Error uploading avatar. Please try again.'
+      };
+    }
+
+    avatarUrl = result.data?.publicUrl || null;
+  }
+
+  const { error } = await supabase.from('profile_table').insert({
+    email,
     first_name: user.firstName,
     last_name: user.lastName,
-    email: user.email
+    role: user.role,
+    avatar: avatarUrl
   });
 
   if (error) {
-    toast.error('Error saving user data. Please try again.');
-    return;
+    return {
+      error: true,
+      message: error.message || 'Error saving profile. Please try again.'
+    };
   }
+
+  return {
+    error: false,
+    message: 'Profile saved successfully!'
+  };
 };
 
-export { saveUser };
+const getProfileByEmail = async (email: string) => {
+  const supabase = await createClientForServer();
+  const { data, error } = await supabase
+    .from('profile_table')
+    .select('*')
+    .eq('email', email)
+    .single();
+
+  if (error) {
+    return null;
+  }
+
+  return data;
+};
+
+export { saveProfile, getProfileByEmail };

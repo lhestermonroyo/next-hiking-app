@@ -24,9 +24,11 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="en" className="dark">
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        data-new-gr-c-s-check-loaded="14.1252.0"
+        data-gr-ext-installed=""
       >
         {children}
         <Toaster position="top-center" />
