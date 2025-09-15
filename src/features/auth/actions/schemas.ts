@@ -22,6 +22,7 @@ export const profileSchema = z.object({
   firstName: z.string().min(1, 'First name is required'),
   lastName: z.string().min(1, 'Last name is required'),
   phone: z.string().min(10, 'Phone number must be at least 10 digits long'),
-  role: z.enum(['hiker', 'admin', 'superadmin']).nullable(),
+  pronouns: z.enum(['he', 'she', 'they'], { message: 'Pronouns are required' }),
+  location: z.string().min(1, 'Location is required'),
   avatar: z.file().nullable()
 });

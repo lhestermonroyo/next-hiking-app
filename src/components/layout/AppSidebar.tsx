@@ -1,15 +1,21 @@
+'use client';
 import { Component, HomeIcon, MapPlus, Mountain } from 'lucide-react';
-import Logo from './Logo';
+import { type ComponentProps } from 'react';
+import Logo from '../Logo';
 import {
   Sidebar,
   SidebarContent,
+  SidebarFooter,
   SidebarGroup,
   SidebarGroupContent,
   SidebarHeader,
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem
-} from './ui/sidebar';
+} from '../ui/sidebar';
+import { usePathname } from 'next/navigation';
+import { ProfileButton } from '@/features/auth/components/ProfileButton';
+import { getCurrentProfile } from '@/utils/getCurrentUser';
 
 type MenuItem = {
   label: string;
@@ -25,7 +31,7 @@ const menuItems: MenuItem[] = [
   },
   {
     label: 'Explore',
-    href: '/discover',
+    href: '/explore',
     icon: MapPlus
   },
   {
@@ -40,16 +46,20 @@ const menuItems: MenuItem[] = [
   }
 ];
 
-export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
+export function AppSidebar({
+  profile,
+  ...props
+}: { profile?: Awaited<ReturnType<typeof getCurrentProfile>> } & ComponentProps<
+  typeof Sidebar
+>) {
+  const pathname = usePathname();
+
   return (
     <Sidebar collapsible="offcanvas" {...props}>
       <SidebarHeader>
         <SidebarMenu>
           <SidebarMenuItem>
-            <SidebarMenuButton
-              asChild
-              className="data-[slot=sidebar-menu-button]:!p-1.5"
-            >
+            <SidebarMenuButton asChild size="lg">
               <a href="#">
                 <Logo />
               </a>
@@ -64,7 +74,11 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
             <SidebarMenu>
               {menuItems.map((item) => (
                 <SidebarMenuItem key={item.label}>
-                  <SidebarMenuButton tooltip={item.label}>
+                  <SidebarMenuButton
+                    tooltip={item.label}
+                    size="lg"
+                    isActive={pathname === item.href}
+                  >
                     {item.icon && <item.icon />}
                     <span>{item.label}</span>
                   </SidebarMenuButton>
@@ -74,6 +88,10 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
           </SidebarGroupContent>
         </SidebarGroup>
       </SidebarContent>
+
+      <SidebarFooter>
+        <ProfileButton profile={profile} />
+      </SidebarFooter>
     </Sidebar>
   );
 }

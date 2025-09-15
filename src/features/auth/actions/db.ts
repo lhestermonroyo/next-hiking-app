@@ -1,15 +1,11 @@
 'use server';
 import z from 'zod';
-import { profileSchema } from './schemas';
 import { saveAvatarToStorage } from './storage';
 import { createClientForServer } from '@/lib/supabase/server';
+import { profileSchema } from './schemas';
+import { table } from '@/data/constants';
 
-const saveProfile = async (
-  user: Pick<
-    z.infer<typeof profileSchema>,
-    'firstName' | 'lastName' | 'role' | 'phone' | 'avatar'
-  >
-) => {
+const saveProfile = async (user: z.infer<typeof profileSchema>) => {
   const supabase = await createClientForServer();
   const { data } = await supabase.auth.getUser();
 
@@ -22,7 +18,6 @@ const saveProfile = async (
   } else {
     const path = `${id}/avatar.png`;
     const result = await saveAvatarToStorage(user.avatar, path);
-    console.log('saveAvatarToStorage result', result);
 
     if (result.error) {
       return {
@@ -34,11 +29,13 @@ const saveProfile = async (
     avatarUrl = result.data?.publicUrl || null;
   }
 
-  const { error } = await supabase.from('profile_table').insert({
+  const { error } = await supabase.from(table.PROFILES_TBL).insert({
     email,
     first_name: user.firstName,
     last_name: user.lastName,
-    role: user.role,
+    phone: user.phone,
+    pronouns: user.pronouns,
+    location: user.location,
     avatar: avatarUrl
   });
 
@@ -58,7 +55,7 @@ const saveProfile = async (
 const getProfileByEmail = async (email: string) => {
   const supabase = await createClientForServer();
   const { data, error } = await supabase
-    .from('profile_table')
+    .from(table.PROFILES_TBL)
     .select('*')
     .eq('email', email)
     .single();

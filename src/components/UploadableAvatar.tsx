@@ -40,7 +40,7 @@ export default function UploadableAvatar({
         className="relative cursor-pointer"
         onClick={() => inputRef.current?.click()}
       >
-        <Avatar className="h-24 w-24 overflow-hidden">
+        <Avatar className="h-34 w-34 overflow-hidden">
           {avatarUrl ? (
             <AvatarImage
               src={avatarUrl}
