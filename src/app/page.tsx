@@ -1,5 +1,4 @@
 import { Layout } from '@/components/layout/Layout';
-import { getCurrentProfile } from '@/utils/getCurrentUser';
 
 export default function Home() {
   return (

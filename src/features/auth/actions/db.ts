@@ -1,9 +1,9 @@
 'use server';
 import z from 'zod';
-import { saveAvatarToStorage } from './storage';
 import { createClientForServer } from '@/lib/supabase/server';
-import { profileSchema } from './schemas';
+import { profileSchema } from '@/features/auth/actions/schemas';
 import { table } from '@/data/constants';
+import { uploadFile } from '@/lib/supabase/utils/upload';
 
 const saveProfile = async (user: z.infer<typeof profileSchema>) => {
   const supabase = await createClientForServer();
@@ -17,7 +17,7 @@ const saveProfile = async (user: z.infer<typeof profileSchema>) => {
     avatarUrl = data.user?.user_metadata?.avatar_url || null;
   } else {
     const path = `${id}/avatar.png`;
-    const result = await saveAvatarToStorage(user.avatar, path);
+    const result = await uploadFile(user.avatar, path, 'profiles');
 
     if (result.error) {
       return {

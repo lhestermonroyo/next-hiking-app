@@ -1,5 +1,4 @@
 'use client';
-
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import {
   DropdownMenu,
@@ -16,9 +15,9 @@ import {
   SidebarMenuItem,
   useSidebar
 } from '@/components/ui/sidebar';
-import { EllipsisVertical, LogOut, Settings, User } from 'lucide-react';
-import { getCurrentProfile } from '@/utils/getCurrentUser';
-import { signOut } from '../actions/auth';
+import { ChevronsUpDown, LogOut, Settings, User } from 'lucide-react';
+import { getCurrentProfile } from '@/features/auth/utils/getCurrentUser';
+import { signOut } from '@/features/auth/actions/auth';
 import { redirect } from 'next/navigation';
 
 export function ProfileButton({
@@ -60,7 +59,7 @@ export function ProfileButton({
                   {profile.email}
                 </span>
               </div>
-              <EllipsisVertical className="ml-auto size-4" />
+              <ChevronsUpDown className="ml-auto size-4" />
             </SidebarMenuButton>
           </DropdownMenuTrigger>
           <DropdownMenuContent

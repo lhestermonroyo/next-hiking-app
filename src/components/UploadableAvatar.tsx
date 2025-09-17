@@ -11,7 +11,7 @@ export default function UploadableAvatar({
   initialUrl,
   onChange
 }: {
-  initialUrl: string | undefined;
+  initialUrl?: string | undefined;
   onChange: (file: File) => void;
 }) {
   const inputRef = useRef<HTMLInputElement>(null);

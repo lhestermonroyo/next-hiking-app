@@ -20,7 +20,7 @@ import {
   FormMessage
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
-import { signUp } from '../actions/auth';
+import { signUp } from '@/features/auth/actions/auth';
 import z from 'zod';
 import { toast } from 'sonner';
 import { redirect } from 'next/navigation';

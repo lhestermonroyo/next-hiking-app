@@ -1,8 +1,9 @@
 import { ReactNode } from 'react';
 import { SidebarInset, SidebarProvider, SidebarTrigger } from '../ui/sidebar';
 import { AppSidebar } from './AppSidebar';
-import { getCurrentProfile } from '@/utils/getCurrentUser';
+import { getCurrentProfile } from '@/features/auth/utils/getCurrentUser';
 import { Separator } from '@radix-ui/react-separator';
+import { getGroupsByMemberId } from '@/features/group-members/actions/db';
 
 export async function Layout({
   title,
@@ -13,6 +14,12 @@ export async function Layout({
 }) {
   const profile = await getCurrentProfile();
 
+  if (!profile) {
+    return null;
+  }
+
+  const memberedGroups = await getGroupsByMemberId(profile.id);
+
   return (
     <SidebarProvider
       style={
@@ -22,15 +29,19 @@ export async function Layout({
         } as React.CSSProperties
       }
     >
-      <AppSidebar variant="inset" profile={profile} />
+      <AppSidebar
+        variant="inset"
+        profile={profile}
+        memberedGroups={memberedGroups}
+      />
       <SidebarInset>
         <div className="flex flex-1 flex-col">
-          <div className="@container/main flex flex-1 flex-col gap-2">
+          <div className="@container/main ">
             <header className="flex h-16 shrink-0 items-center gap-2 border-b">
               <div className="flex items-center gap-2 px-3">
                 <SidebarTrigger />
                 <Separator orientation="vertical" className="mr-2 h-4" />
-                <h1 className="text-2xl font-bold">{title}</h1>
+                <h3 className="text-lg font-medium">{title}</h3>
               </div>
             </header>
             {children}

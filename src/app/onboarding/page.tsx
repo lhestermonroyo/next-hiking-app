@@ -5,7 +5,7 @@ import { redirect } from 'next/navigation';
 
 export default function OnboardingPage() {
   return (
-    <div className="max-w-3xl mx-auto flex-col gap-6 p-6 md:p-10">
+    <div className="max-w-4xl mx-auto flex-col gap-6 p-6 md:p-10">
       <div className="flex flex-col gap-6">
         <Logo />
         <div className="flex flex-col gap-0">
@@ -15,12 +15,12 @@ export default function OnboardingPage() {
           </p>
         </div>
       </div>
-      <SuspensePage />
+      <SuspenseComponent />
     </div>
   );
 }
 
-async function SuspensePage() {
+async function SuspenseComponent() {
   const supabase = await createClientForServer();
   const { data } = await supabase.auth.getUser();
 
