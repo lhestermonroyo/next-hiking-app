@@ -15,12 +15,12 @@ import {
   SidebarMenuButton,
   SidebarMenuItem
 } from '../ui/sidebar';
-import { redirect, usePathname } from 'next/navigation';
+import { usePathname } from 'next/navigation';
 import { ProfileButton } from '@/features/auth/components/ProfileButton';
 import { getCurrentProfile } from '@/features/auth/utils/getCurrentUser';
 import Link from 'next/link';
 import { GroupMenu } from '@/features/groups/components/GroupMenu';
-import { getGroupsByMemberId } from '@/features/group-members/actions/db';
+import { fetchGroupByMemberId } from '@/features/group-members/actions/db';
 
 type MenuItem = {
   label: string;
@@ -57,7 +57,7 @@ export function AppSidebar({
   ...props
 }: {
   profile?: Awaited<ReturnType<typeof getCurrentProfile>>;
-  memberedGroups?: Awaited<ReturnType<typeof getGroupsByMemberId>>;
+  memberedGroups?: Awaited<ReturnType<typeof fetchGroupByMemberId>>;
 } & ComponentProps<typeof Sidebar>) {
   const pathname = usePathname();
   const currentPath = '/' + pathname.split('/')[1];

@@ -3,7 +3,7 @@ import { SidebarInset, SidebarProvider, SidebarTrigger } from '../ui/sidebar';
 import { AppSidebar } from './AppSidebar';
 import { getCurrentProfile } from '@/features/auth/utils/getCurrentUser';
 import { Separator } from '@radix-ui/react-separator';
-import { getGroupsByMemberId } from '@/features/group-members/actions/db';
+import { fetchGroupsByMemberId } from '@/features/group-members/actions/db';
 
 export async function Layout({
   title,
@@ -18,7 +18,7 @@ export async function Layout({
     return null;
   }
 
-  const memberedGroups = await getGroupsByMemberId(profile.id);
+  const memberedGroups = await fetchGroupsByMemberId(profile.id);
 
   return (
     <SidebarProvider
@@ -41,7 +41,7 @@ export async function Layout({
               <div className="flex items-center gap-2 px-3">
                 <SidebarTrigger />
                 <Separator orientation="vertical" className="mr-2 h-4" />
-                <h3 className="text-lg font-medium">{title}</h3>
+                <h3 className="text-md font-medium">{title}</h3>
               </div>
             </header>
             {children}

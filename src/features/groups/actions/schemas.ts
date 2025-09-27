@@ -10,3 +10,32 @@ export const groupSchema = z.object({
     .string()
     .min(10, 'Group phone number must be at least 10 digits long')
 });
+
+// add error messages to url validations
+export const groupSocialsSchema = z.object({
+  twitter: z
+    .string()
+    .url('Please enter a valid Twitter URL')
+    .optional()
+    .or(z.literal('')),
+  facebook: z
+    .string()
+    .url('Please enter a valid Facebook URL')
+    .optional()
+    .or(z.literal('')),
+  instagram: z
+    .string()
+    .url('Please enter a valid Instagram URL')
+    .optional()
+    .or(z.literal('')),
+  youtube: z
+    .string()
+    .url('Please enter a valid Youtube URL')
+    .optional()
+    .or(z.literal('')),
+  tiktok: z
+    .string()
+    .url('Please enter a valid TikTok URL')
+    .optional()
+    .or(z.literal(''))
+});

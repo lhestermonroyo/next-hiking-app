@@ -52,7 +52,7 @@ const saveProfile = async (user: z.infer<typeof profileSchema>) => {
   };
 };
 
-const getProfileByEmail = async (email: string) => {
+const fetchProfileByEmail = async (email: string) => {
   const supabase = await createClientForServer();
   const { data, error } = await supabase
     .from(table.PROFILES_TBL)
@@ -61,10 +61,16 @@ const getProfileByEmail = async (email: string) => {
     .single();
 
   if (error) {
-    return null;
+    return {
+      error: true,
+      message: error.message || 'Error fetching profile. Please try again.'
+    };
   }
 
-  return data;
+  return {
+    error: false,
+    data
+  };
 };
 
-export { saveProfile, getProfileByEmail };
+export { saveProfile, fetchProfileByEmail };

@@ -26,3 +26,7 @@ export const profileSchema = z.object({
   location: z.string().min(1, 'Location is required'),
   avatar: z.file().nullable()
 });
+
+export const roleSchema = z.object({
+  role: z.enum(['member', 'admin'], { message: 'Role is required' })
+});

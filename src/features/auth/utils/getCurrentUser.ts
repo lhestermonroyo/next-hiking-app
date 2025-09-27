@@ -1,4 +1,4 @@
-import { getProfileByEmail } from '@/features/auth/actions/db';
+import { fetchProfileByEmail } from '@/features/auth/actions/db';
 import { createClientForServer } from '@/lib/supabase/server';
 import { redirect } from 'next/navigation';
 
@@ -10,7 +10,7 @@ export async function getCurrentProfile() {
     return redirect('/auth/login');
   }
 
-  const profile = await getProfileByEmail(user.data.user.email!);
+  const { data: profile } = await fetchProfileByEmail(user.data.user.email!);
 
   if (!profile) {
     return redirect('/onboarding');

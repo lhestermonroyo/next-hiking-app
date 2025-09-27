@@ -1,9 +1,9 @@
 import { getCurrentProfile } from '@/features/auth/utils/getCurrentUser';
-import { CreateGroupForm } from '@/features/groups/components/CreateGroupForm';
+import { GroupForm } from '@/features/groups/components/GroupForm';
 
 export default function CreateGroupPage() {
   return (
-    <div className="max-w-4xl mx-auto flex-col gap-6 p-6 md:p-10">
+    <div className="max-w-3xl mx-auto flex-col gap-6 py-4 mb-8">
       <div className="flex flex-col gap-6">
         <div className="flex flex-col gap-0">
           <h1 className="text-3xl font-bold mb-2">Create Group</h1>
@@ -25,5 +25,5 @@ async function SuspenseComponent() {
     return null;
   }
 
-  return <CreateGroupForm profile={profile} />;
+  return <GroupForm profile={profile} />;
 }

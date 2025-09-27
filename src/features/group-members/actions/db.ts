@@ -45,7 +45,30 @@ const saveGroupMember = async (
   };
 };
 
-const getGroupsByMemberId = async (memberId: string) => {
+const fetchMembersByGroupId = async (groupId: string) => {
+  const supabase = await createClientForServer();
+
+  const { data, error } = await supabase
+    .from(table.GROUP_MEMBERS_TBL)
+    .select(
+      'id, group_id, member_id, role, profile:profiles_tbl!group_members_tbl_member_id_fkey(id, first_name, last_name, avatar, email)'
+    )
+    .eq('group_id', groupId);
+
+  if (error) {
+    return {
+      error: true,
+      message: error.message || 'Error fetching members. Please try again.'
+    };
+  }
+
+  return {
+    error: false,
+    data
+  };
+};
+
+const fetchGroupsByMemberId = async (memberId: string) => {
   const supabase = await createClientForServer();
 
   const { data, error } = await supabase
@@ -68,7 +91,7 @@ const getGroupsByMemberId = async (memberId: string) => {
   };
 };
 
-const getGroupByMemberId = async (groupId: string, memberId: string) => {
+const fetchGroupByMemberId = async (groupId: string, memberId: string) => {
   const supabase = await createClientForServer();
 
   const { data, error } = await supabase
@@ -91,4 +114,9 @@ const getGroupByMemberId = async (groupId: string, memberId: string) => {
   };
 };
 
-export { saveGroupMember, getGroupsByMemberId, getGroupByMemberId };
+export {
+  saveGroupMember,
+  fetchMembersByGroupId,
+  fetchGroupsByMemberId,
+  fetchGroupByMemberId
+};

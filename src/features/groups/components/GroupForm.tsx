@@ -9,61 +9,67 @@ import {
   FormMessage
 } from '@/components/ui/form';
 import { useForm } from 'react-hook-form';
-import { User } from '@supabase/supabase-js';
 import z from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { profileSchema } from '@/features/auth/actions/schemas';
+import { groupSchema } from '@/features/groups/actions/schemas';
 import { Input } from '@/components/ui/input';
-import {
-  Select,
-  SelectContent,
-  SelectTrigger,
-  SelectValue,
-  SelectItem
-} from '@/components/ui/select';
 import UploadableAvatar from '@/components/UploadableAvatar';
 import { Button } from '@/components/ui/button';
-import { saveProfile } from '../actions/db';
 import { toast } from 'sonner';
 import { redirect } from 'next/navigation';
+import { Textarea } from '@/components/ui/textarea';
+import { saveGroup, updateGroup } from '@/features/groups/actions/db';
+import { getCurrentProfile } from '@/features/auth/utils/getCurrentUser';
 
-const pronounsOptions = [
-  { value: 'he', label: 'He/Him' },
-  { value: 'she', label: 'She/Her' },
-  { value: 'they', label: 'They/Them' }
-] as const;
-
-export function OnboardingForm({ user }: { user: User }) {
-  let firstName = '';
-  let lastName = '';
-
-  if (user.user_metadata?.full_name) {
-    const fullName = user.user_metadata.full_name.split(' ');
-    firstName = fullName[0];
-    lastName = fullName[1];
-  }
-
+export function GroupForm({
+  initialValues,
+  profile
+}: {
+  initialValues?: z.infer<typeof groupSchema> & { groupId: string };
+  profile: Awaited<ReturnType<typeof getCurrentProfile>>;
+}) {
   const form = useForm({
-    resolver: zodResolver(profileSchema),
+    resolver: zodResolver(groupSchema),
     defaultValues: {
-      firstName: firstName || user.user_metadata?.first_name || '',
-      lastName: lastName || user.user_metadata?.last_name || '',
-      phone: user.user_metadata?.phone || '',
-      pronouns: undefined,
-      location: '',
+      name: initialValues?.name || '',
+      bio: initialValues?.bio || '',
+      location: initialValues?.location || '',
+      group_email: initialValues?.group_email || '',
+      group_phone: initialValues?.group_phone || '',
       avatar: null
     },
     mode: 'onTouched'
   });
 
-  const onSubmit = async (values: z.infer<typeof profileSchema>) => {
-    const result = await saveProfile(values);
+  async function onSubmit(values: z.infer<typeof groupSchema>) {
+    if (!initialValues) {
+      await onSave(values);
+    } else {
+      await onUpdate(values);
+    }
+  }
+
+  async function onSave(values: z.infer<typeof groupSchema>) {
+    const result = await saveGroup(values, profile.id);
 
     if (result.error) {
       toast.error(result.message);
+    } else {
+      toast.success(result.message);
+      redirect('/groups');
     }
-    redirect('/');
-  };
+  }
+
+  async function onUpdate(values: z.infer<typeof groupSchema>) {
+    const groupId = initialValues?.groupId as string;
+    const result = await updateGroup(values, groupId);
+
+    if (result.error) {
+      toast.error(result.message);
+    } else {
+      toast.success(result.message);
+    }
+  }
 
   return (
     <Form {...form}>
@@ -74,22 +80,26 @@ export function OnboardingForm({ user }: { user: User }) {
         <div className="flex flex-col gap-6">
           <div className="m-auto">
             <UploadableAvatar
-              initialUrl={user.user_metadata?.avatar_url}
+              initialUrl={
+                typeof initialValues?.avatar === 'string'
+                  ? initialValues.avatar
+                  : undefined
+              }
               onChange={(file: File) => form.setValue('avatar', file)}
             />
           </div>
           <FormField
-            name="firstName"
+            name="name"
             control={form.control}
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Firstname</FormLabel>
+                <FormLabel>Name</FormLabel>
                 <div className="grid">
                   <FormControl>
                     <Input
                       {...field}
                       type="text"
-                      placeholder="Enter your first name"
+                      placeholder="Enter group name"
                     />
                   </FormControl>
                   <FormMessage />
@@ -98,36 +108,17 @@ export function OnboardingForm({ user }: { user: User }) {
             )}
           />
           <FormField
-            name="lastName"
+            name="bio"
             control={form.control}
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Lastname</FormLabel>
+                <FormLabel>Bio</FormLabel>
                 <div className="grid">
                   <FormControl>
-                    <Input
+                    <Textarea
                       {...field}
-                      type="text"
-                      placeholder="Enter your last name"
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </div>
-              </FormItem>
-            )}
-          />
-          <FormField
-            name="phone"
-            control={form.control}
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Phone</FormLabel>
-                <div className="grid">
-                  <FormControl>
-                    <Input
-                      {...field}
-                      type="text"
-                      placeholder="Enter your phone number"
+                      placeholder="Enter your bio"
+                      className="h-36"
                     />
                   </FormControl>
                   <FormMessage />
@@ -155,27 +146,38 @@ export function OnboardingForm({ user }: { user: User }) {
             )}
           />
           <FormField
-            name="pronouns"
+            name="group_email"
             control={form.control}
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Pronouns</FormLabel>
+                <FormLabel>Email</FormLabel>
                 <div className="grid">
-                  <Select
-                    onValueChange={(value) => field.onChange(value)}
-                    value={field.value ?? ''}
-                  >
-                    <SelectTrigger className="w-full">
-                      <SelectValue placeholder="Select your pronouns" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {pronounsOptions.map((pronoun) => (
-                        <SelectItem key={pronoun.value} value={pronoun.value}>
-                          {pronoun.label}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+                  <FormControl>
+                    <Input
+                      {...field}
+                      type="email"
+                      placeholder="Enter group email"
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </div>
+              </FormItem>
+            )}
+          />
+          <FormField
+            name="group_phone"
+            control={form.control}
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Phone</FormLabel>
+                <div className="grid">
+                  <FormControl>
+                    <Input
+                      {...field}
+                      type="text"
+                      placeholder="Enter your phone number"
+                    />
+                  </FormControl>
                   <FormMessage />
                 </div>
               </FormItem>
@@ -187,7 +189,9 @@ export function OnboardingForm({ user }: { user: User }) {
           type="submit"
           disabled={form.formState.isSubmitting}
         >
-          {form.formState.isSubmitting ? 'Loading...' : 'Save and Continue'}
+          {form.formState.isSubmitting
+            ? 'Loading...'
+            : `${initialValues ? 'Update' : 'Create'} Group`}
         </Button>
       </form>
     </Form>

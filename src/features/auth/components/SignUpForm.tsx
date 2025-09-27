@@ -39,7 +39,7 @@ export function SignUpForm({
     mode: 'onTouched'
   });
 
-  async function onSubmit(values: z.infer<typeof signUpSchema>) {
+  const onSubmit = async (values: z.infer<typeof signUpSchema>) => {
     const result = await signUp(values);
 
     if (result.error) {
@@ -50,7 +50,7 @@ export function SignUpForm({
       toast.success(result.message);
       redirect('/auth/login');
     }
-  }
+  };
 
   return (
     <div className={cn('flex flex-col gap-6', className)} {...props}>
@@ -129,7 +129,7 @@ export function SignUpForm({
 
                   <Button
                     type="submit"
-                    className="w-full"
+                    className="w-full cursor-pointer"
                     disabled={form.formState.isSubmitting}
                   >
                     {form.formState.isSubmitting

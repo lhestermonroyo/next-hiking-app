@@ -4,7 +4,7 @@ import React, { useRef, useState } from 'react';
 import { Input } from './ui/input';
 import { Button } from './ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar';
-import { UserIcon } from 'lucide-react';
+import { Upload, UserIcon } from 'lucide-react';
 import { toast } from 'sonner';
 
 export default function UploadableAvatar({
@@ -40,7 +40,7 @@ export default function UploadableAvatar({
         className="relative cursor-pointer"
         onClick={() => inputRef.current?.click()}
       >
-        <Avatar className="h-34 w-34 overflow-hidden">
+        <Avatar className="h-30 w-30 overflow-hidden">
           {avatarUrl ? (
             <AvatarImage
               src={avatarUrl}
@@ -64,13 +64,14 @@ export default function UploadableAvatar({
       />
 
       <Button
+        className="cursor-pointer"
         onClick={(e) => {
           e.preventDefault();
           inputRef.current?.click();
         }}
         variant="secondary"
       >
-        {avatarUrl ? 'Change' : 'Upload'} Avatar
+        <Upload /> {avatarUrl ? 'Change' : 'Upload'} Avatar
       </Button>
     </div>
   );

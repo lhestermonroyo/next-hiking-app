@@ -6,3 +6,8 @@ export const table = {
   EVENTS_TBL: 'events_tbl',
   JOINERS_TBL: 'joiners_tbl'
 };
+
+export const views = {
+  GROUPS_WITH_STATS_VIEW: 'groups_with_stats_view',
+  GROUP_DETAILS_WITH_STATS_VIEW: 'group_details_with_stats_view'
+};

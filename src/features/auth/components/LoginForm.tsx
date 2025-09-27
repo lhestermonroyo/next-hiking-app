@@ -41,15 +41,15 @@ export function LoginForm({
     mode: 'onTouched'
   });
 
-  async function onGoogleLogin() {
+  const onGoogleLogin = async () => {
     const result = await signInWithGoogle();
 
     if (result.error) {
       toast.error(result.message);
     }
-  }
+  };
 
-  async function onSubmit(values: z.infer<typeof loginSchema>) {
+  const onSubmit = async (values: z.infer<typeof loginSchema>) => {
     const result = await signInWithPassword(values);
 
     if (result.error) {
@@ -57,7 +57,7 @@ export function LoginForm({
     }
 
     redirect('/');
-  }
+  };
 
   return (
     <div className={cn('flex flex-col gap-6', className)} {...props}>
@@ -71,7 +71,7 @@ export function LoginForm({
             <div className="flex flex-col gap-4">
               <Button
                 variant="outline"
-                className="w-full"
+                className="w-full cursor-pointer"
                 onClick={onGoogleLogin}
               >
                 <GoogleIcon />
@@ -134,7 +134,7 @@ export function LoginForm({
                     )}
                   />
 
-                  <Button type="submit" className="w-full">
+                  <Button type="submit" className="w-full cursor-pointer">
                     Login
                   </Button>
                 </div>

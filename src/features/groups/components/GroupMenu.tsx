@@ -4,10 +4,8 @@ import {
   SidebarMenuButton,
   SidebarMenuItem
 } from '@/components/ui/sidebar';
-import { getGroupsByMemberId } from '@/features/group-members/actions/db';
+import { fetchGroupsByMemberId } from '@/features/group-members/actions/db';
 import { AvatarFallback } from '@radix-ui/react-avatar';
-import { CirclePlus } from 'lucide-react';
-import { redirect } from 'next/navigation';
 
 type GroupItem = {
   id: string;
@@ -18,7 +16,7 @@ type GroupItem = {
 export function GroupMenu({
   memberedGroups
 }: {
-  memberedGroups?: Awaited<ReturnType<typeof getGroupsByMemberId>>;
+  memberedGroups?: Awaited<ReturnType<typeof fetchGroupsByMemberId>>;
 }) {
   if (
     memberedGroups &&
