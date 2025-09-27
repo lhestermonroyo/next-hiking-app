@@ -1,5 +1,7 @@
+'use server';
 import { table } from '@/data/constants';
 import { createClientForServer } from '@/lib/supabase/server';
+import { revalidatePath } from 'next/cache';
 
 type Role = 'admin' | 'editor';
 
@@ -45,13 +47,66 @@ const saveGroupMember = async (
   };
 };
 
+const updateGroupMemberRole = async (
+  groupId: string,
+  memberId: string,
+  role: Role
+) => {
+  const supabase = await createClientForServer();
+
+  const adminsQuery = await supabase
+    .from(table.GROUP_MEMBERS_TBL)
+    .select('member_id')
+    .eq('group_id', groupId)
+    .eq('role', 'admin');
+
+  if (adminsQuery.error) {
+    return {
+      error: true,
+      message:
+        adminsQuery.error.message ||
+        'Error checking admin status. Please try again.'
+    };
+  }
+
+  const admins = adminsQuery.data || [];
+  const isLastAdmin = admins.length === 1 && admins[0].member_id === memberId;
+
+  if (isLastAdmin && role !== 'admin') {
+    return {
+      error: true,
+      message: 'Cannot change role. The group must have at least one admin.'
+    };
+  }
+
+  const { error } = await supabase
+    .from(table.GROUP_MEMBERS_TBL)
+    .update({ role })
+    .eq('group_id', groupId)
+    .eq('member_id', memberId)
+    .select();
+
+  if (error) {
+    return {
+      error: true,
+      message: error.message || 'Error updating group member. Please try again.'
+    };
+  }
+
+  revalidatePath(`/groups/${groupId}/members`);
+  return {
+    error: false,
+    message: 'Group member updated successfully!'
+  };
+};
+
 const fetchMembersByGroupId = async (groupId: string) => {
   const supabase = await createClientForServer();
 
   const { data, error } = await supabase
     .from(table.GROUP_MEMBERS_TBL)
     .select(
-      'id, group_id, member_id, role, profile:profiles_tbl!group_members_tbl_member_id_fkey(id, first_name, last_name, avatar, email)'
+      'id, group_id, member_id, role, profile:profiles_tbl!group_members_tbl_member_id_fkey(first_name, last_name, avatar, email)'
     )
     .eq('group_id', groupId);
 
@@ -116,6 +171,7 @@ const fetchGroupByMemberId = async (groupId: string, memberId: string) => {
 
 export {
   saveGroupMember,
+  updateGroupMemberRole,
   fetchMembersByGroupId,
   fetchGroupsByMemberId,
   fetchGroupByMemberId

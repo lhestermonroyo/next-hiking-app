@@ -36,9 +36,9 @@ export async function Layout({
       />
       <SidebarInset>
         <div className="flex flex-1 flex-col">
-          <div className="@container/main ">
+          <div className="@container/main">
             <header className="flex h-16 shrink-0 items-center gap-2 border-b">
-              <div className="flex items-center gap-2 px-3">
+              <div className="flex items-center gap-2 px-4">
                 <SidebarTrigger />
                 <Separator orientation="vertical" className="mr-2 h-4" />
                 <h3 className="text-md font-medium">{title}</h3>

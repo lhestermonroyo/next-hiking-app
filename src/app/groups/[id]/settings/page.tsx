@@ -14,7 +14,7 @@ type Props = {
 
 export default function GroupSettingsPage(props: Props) {
   return (
-    <div className="max-w-3xl mx-auto flex-col gap-6 py-4">
+    <div className="max-w-3xl mx-auto flex-col gap-6 p-4">
       <Suspense fallback={<div>Loading...</div>}>
         <SuspensePage params={props.params} />
       </Suspense>

@@ -13,7 +13,7 @@ export default async function GroupsPage() {
   }
 
   return (
-    <div className="max-w-7xl mx-auto flex-col gap-6 py-4">
+    <div className="max-w-7xl mx-auto flex-col gap-6 p-4">
       <Button asChild className="float-right -mb-10">
         <Link href="/groups/create">Create Group</Link>
       </Button>

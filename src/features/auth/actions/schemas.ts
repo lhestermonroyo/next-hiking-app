@@ -28,5 +28,5 @@ export const profileSchema = z.object({
 });
 
 export const roleSchema = z.object({
-  role: z.enum(['member', 'admin'], { message: 'Role is required' })
+  role: z.enum(['editor', 'admin'], { message: 'Role is required' })
 });

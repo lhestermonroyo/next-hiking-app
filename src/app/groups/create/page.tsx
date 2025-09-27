@@ -3,7 +3,7 @@ import { GroupForm } from '@/features/groups/components/GroupForm';
 
 export default function CreateGroupPage() {
   return (
-    <div className="max-w-3xl mx-auto flex-col gap-6 py-4 mb-8">
+    <div className="max-w-3xl mx-auto flex-col gap-6 p-4 mb-8">
       <div className="flex flex-col gap-6">
         <div className="flex flex-col gap-0">
           <h1 className="text-3xl font-bold mb-2">Create Group</h1>

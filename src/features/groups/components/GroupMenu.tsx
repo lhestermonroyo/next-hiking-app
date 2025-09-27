@@ -1,11 +1,10 @@
-import { Avatar, AvatarImage } from '@/components/ui/avatar';
+import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem
 } from '@/components/ui/sidebar';
 import { fetchGroupsByMemberId } from '@/features/group-members/actions/db';
-import { AvatarFallback } from '@radix-ui/react-avatar';
 
 type GroupItem = {
   id: string;

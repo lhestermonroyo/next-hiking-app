@@ -73,4 +73,34 @@ const fetchProfileByEmail = async (email: string) => {
   };
 };
 
-export { saveProfile, fetchProfileByEmail };
+const fetchNonMemberProfiles = async (groupId: string) => {
+  const supabase = await createClientForServer();
+
+  const { data, error } = await supabase
+    .from(table.PROFILES_TBL)
+    .select('*')
+    .not(
+      'id',
+      'in',
+      supabase
+        .from(table.GROUP_MEMBERS_TBL)
+        .select('member_id')
+        .eq('group_id', groupId)
+    );
+
+  console.log('data', data);
+
+  if (error) {
+    return {
+      error: true,
+      message: error.message || 'Error fetching profiles. Please try again.'
+    };
+  }
+
+  return {
+    error: false,
+    data
+  };
+};
+
+export { saveProfile, fetchProfileByEmail, fetchNonMemberProfiles };

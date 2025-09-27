@@ -1,3 +1,4 @@
+'use client';
 import BackButton from '@/components/BackButton';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
@@ -11,7 +12,9 @@ import {
   fetchGroupByMemberId,
   fetchMembersByGroupId
 } from '@/features/group-members/actions/db';
+import AddMemberSheet from '@/features/group-members/components/AddMemberSheet';
 import MemberItem from '@/features/group-members/components/MemberItem';
+import { sortRole } from '@/features/group-members/utils/sortRole';
 import { Suspense } from 'react';
 
 type Props = {
@@ -20,7 +23,7 @@ type Props = {
 
 export default function ManageMembersPage(props: Props) {
   return (
-    <div className="max-w-3xl mx-auto flex-col gap-6 py-4">
+    <div className="max-w-3xl mx-auto flex-col gap-6 p-4">
       <Suspense fallback={<div>Loading...</div>}>
         <SuspensePage params={props.params} />
       </Suspense>
@@ -46,19 +49,27 @@ async function SuspensePage({ params }: Props) {
     return null;
   }
 
-  console.log(members);
+  const isAdmin = members.some(
+    (member) => member.member_id === profile?.id && member.role === 'admin'
+  );
 
   return (
     <div className="flex flex-col gap-4">
       <BackButton />
       <div className="flex items-center justify-between">
         <h1 className="text-3xl font-bold">Manage Members</h1>
-        <Button>Add Member</Button>
+        {isAdmin && (
+          <AddMemberSheet groupId={id}>
+            <Button>Add Member</Button>
+          </AddMemberSheet>
+        )}
       </div>
       <div className="flex flex-col gap-2">
-        {members.map((member) => (
-          <MemberItem key={member.id} member={member} />
-        ))}
+        {members
+          .sort((a, b) => sortRole(a.role, b.role))
+          .map((member) => (
+            <MemberItem key={member.id} member={member} isAdmin={isAdmin} />
+          ))}
       </div>
     </div>
   );
