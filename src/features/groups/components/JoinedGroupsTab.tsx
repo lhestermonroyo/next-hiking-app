@@ -19,6 +19,7 @@ export default function JoinedGroupsTab({
         <SearchForm
           placeholder="Search hiking groups..."
           onSearch={setSearch}
+          value={search}
         />
       </div>
       <p>Coming soon!</p>

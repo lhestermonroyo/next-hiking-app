@@ -73,27 +73,40 @@ const fetchProfileByEmail = async (email: string) => {
   };
 };
 
-const fetchNonMemberProfiles = async (groupId: string) => {
+const searchNonMemberProfiles = async (
+  groupId: string,
+  searchQuery: string
+) => {
   const supabase = await createClientForServer();
+
+  const { data: members, error: membersError } = await supabase
+    .from(table.GROUP_MEMBERS_TBL)
+    .select('member_id')
+    .eq('group_id', groupId);
+
+  if (membersError) {
+    return {
+      error: true,
+      message: membersError.message || 'Error fetching members.'
+    };
+  }
+
+  const memberIds = members?.map((m) => m.member_id) ?? [];
 
   const { data, error } = await supabase
     .from(table.PROFILES_TBL)
-    .select('*')
-    .not(
-      'id',
-      'in',
-      supabase
-        .from(table.GROUP_MEMBERS_TBL)
-        .select('member_id')
-        .eq('group_id', groupId)
-    );
-
-  console.log('data', data);
+    .select('id, email, first_name, last_name, avatar')
+    .not('id', 'in', `(${memberIds.join(',')})`)
+    .ilike('email', `%${searchQuery}%`)
+    .or(
+      `email.ilike.%${searchQuery}%,first_name.ilike.%${searchQuery}%,last_name.ilike.%${searchQuery}%`
+    )
+    .single();
 
   if (error) {
     return {
       error: true,
-      message: error.message || 'Error fetching profiles. Please try again.'
+      message: error.message || 'Error fetching profiles.'
     };
   }
 
@@ -103,4 +116,4 @@ const fetchNonMemberProfiles = async (groupId: string) => {
   };
 };
 
-export { saveProfile, fetchProfileByEmail, fetchNonMemberProfiles };
+export { saveProfile, fetchProfileByEmail, searchNonMemberProfiles };

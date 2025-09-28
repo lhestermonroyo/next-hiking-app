@@ -27,13 +27,13 @@ export function ProfileButton({
 }) {
   const { isMobile } = useSidebar();
 
-  async function onSignOut() {
+  const onSignOut = async () => {
     const result = await signOut();
 
     if (!result.error) {
       redirect('/auth/login');
     }
-  }
+  };
 
   return (
     <SidebarMenu>
@@ -44,9 +44,13 @@ export function ProfileButton({
               size="lg"
               className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
             >
-              <Avatar className="h-8 w-8 rounded-lg">
-                <AvatarImage src={profile.avatar} alt={profile.first_name} />
-                <AvatarFallback className="rounded-lg">
+              <Avatar className="h-8 w-8 overflow-hidden">
+                <AvatarImage
+                  src={profile.avatar}
+                  alt={profile.first_name}
+                  className="object-cover object-top h-full w-full"
+                />
+                <AvatarFallback>
                   {profile.first_name.charAt(0)}
                   {profile.last_name.charAt(0)}
                 </AvatarFallback>
@@ -70,9 +74,13 @@ export function ProfileButton({
           >
             <DropdownMenuLabel className="p-0 font-normal">
               <div className="flex items-center gap-2 px-1 py-1.5 text-left text-sm">
-                <Avatar className="h-8 w-8 rounded-lg">
-                  <AvatarImage src={profile.avatar} alt={profile.first_name} />
-                  <AvatarFallback className="rounded-lg">
+                <Avatar className="h-8 w-8 overflow-hidden">
+                  <AvatarImage
+                    src={profile.avatar}
+                    alt={profile.first_name}
+                    className="object-cover object-top h-full w-full"
+                  />
+                  <AvatarFallback>
                     {profile.first_name.charAt(0)}
                     {profile.last_name.charAt(0)}
                   </AvatarFallback>

@@ -13,6 +13,7 @@ import {
   Instagram,
   LucideProps,
   Mail,
+  Map,
   MountainIcon,
   Music2,
   Phone,
@@ -62,34 +63,39 @@ async function SuspensePage({ params }: Props) {
     return null;
   }
 
+  const isAdmin = member?.role === 'admin';
+
   return (
     <div className="flex flex-col gap-8">
       <div className="flex flex-col gap-4 mb-4">
         <BackButton />
         <div className="flex justify-between items-center">
           <div className="flex gap-4 items-center">
-            <Avatar className="h-16 w-16 rounded-lg">
-              <AvatarImage src={group?.avatar ?? undefined} alt={group?.name} />
-              <AvatarFallback className="rounded-lg">
-                {group?.name.charAt(0)}
-              </AvatarFallback>
+            <Avatar className="h-16 w-16 overflow-hidden">
+              <AvatarImage
+                src={group?.avatar ?? undefined}
+                alt={group?.name}
+                className="object-cover object-top h-full w-full"
+              />
+              <AvatarFallback>{group?.name.charAt(0)}</AvatarFallback>
             </Avatar>
             <div className="flex flex-col gap-0">
               <h1 className="text-3xl font-bold">{group?.name}</h1>
               <p className="text-muted-foreground truncate">
-                {group?.location} &bull; Active since{' '}
-                {format(new Date(group?.created_at), 'MMMM yyyy')}
+                Active since {format(new Date(group?.created_at), 'MMMM yyyy')}{' '}
+                &bull; Joined as{' '}
+                <span className="capitalize font-bold">{member?.role}</span>
               </p>
             </div>
           </div>
 
-          {member?.role === 'admin' && (
+          {isAdmin && (
             <div className="flex gap-2">
               <Button asChild>
-                <Link href={`/groups/${group.id}/members`}>Manage Members</Link>
+                <Link href={`${group.id}/members`}>Manage Members</Link>
               </Button>
               <Button variant="link" asChild>
-                <Link href={`/groups/${group.id}/settings`}>
+                <Link href={`${group.id}/settings`}>
                   <Settings2 className="size-5" />
                 </Link>
               </Button>
@@ -98,7 +104,7 @@ async function SuspensePage({ params }: Props) {
         </div>
       </div>
 
-      <div className="grid grid-cols-6 grid-rows-5 gap-x-12 gap-y-4">
+      <div className="grid grid-cols-6 gap-x-12 gap-y-4">
         <div className="col-span-4 row-span-2 flex flex-col gap-8">
           <div className="flex flex-col gap-4">
             <h1 className="text-2xl font-bold">About</h1>
@@ -108,13 +114,13 @@ async function SuspensePage({ params }: Props) {
             <h1 className="text-2xl font-bold">Upcoming Events</h1>
             <div>
               <Button asChild className="float-right -mb-10">
-                <Link href="/groups/create">Create Event</Link>
+                <Link href={`${group.id}/create-event`}>Create Event</Link>
               </Button>
               <EventsTab />
             </div>
           </div>
         </div>
-        <div className="col-span-2 row-span-2 flex flex-col gap-8">
+        <div className="col-span-2 row-span-2 flex flex-col gap-8 mb-8">
           <div className="flex flex-col gap-4">
             <h1 className="text-2xl font-bold">Stats</h1>
             <div className="grid grid-cols-2 gap-4">
@@ -132,6 +138,7 @@ async function SuspensePage({ params }: Props) {
           </div>
           <div className="flex flex-col gap-4">
             <h1 className="text-2xl font-bold">Contacts</h1>
+            <ContactItem type="Location" value={group?.location} icon={Map} />
             <ContactItem type="Email" value={group?.group_email} icon={Mail} />
             <ContactItem type="Phone" value={group?.group_phone} icon={Phone} />
           </div>

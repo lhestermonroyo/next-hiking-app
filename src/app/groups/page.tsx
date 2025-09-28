@@ -4,8 +4,19 @@ import { fetchAllGroups } from '@/features/groups/actions/db';
 import AllHikingGroupsTab from '@/features/groups/components/AllHikingGroupsTab';
 import JoinedGroupsTab from '@/features/groups/components/JoinedGroupsTab';
 import Link from 'next/link';
+import { Fragment, Suspense } from 'react';
 
-export default async function GroupsPage() {
+export default function GroupsPage() {
+  return (
+    <div className="max-w-7xl mx-auto flex-col gap-6 p-4">
+      <Suspense fallback={<div>Loading...</div>}>
+        <SuspensePage />
+      </Suspense>
+    </div>
+  );
+}
+
+async function SuspensePage() {
   const { data: allGroups } = await fetchAllGroups();
 
   if (!allGroups) {
@@ -13,7 +24,7 @@ export default async function GroupsPage() {
   }
 
   return (
-    <div className="max-w-7xl mx-auto flex-col gap-6 p-4">
+    <Fragment>
       <Button asChild className="float-right -mb-10">
         <Link href="/groups/create">Create Group</Link>
       </Button>
@@ -29,6 +40,6 @@ export default async function GroupsPage() {
           <JoinedGroupsTab groups={allGroups} />
         </TabsContent>
       </Tabs>
-    </div>
+    </Fragment>
   );
 }

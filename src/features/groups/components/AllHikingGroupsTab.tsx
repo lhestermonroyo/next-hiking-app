@@ -5,23 +5,29 @@ import GroupCard from './GroupCard';
 import { useState } from 'react';
 import { useDebounce } from '@/hooks/use-debounce';
 import { Button } from '@/components/ui/button';
-import { Settings2 } from 'lucide-react';
+import { Filter, Settings2 } from 'lucide-react';
 
 export default function AllHikingGroupsTab({
   groups
 }: {
   groups: Awaited<ReturnType<typeof fetchAllGroups>>['data'] | null;
 }) {
-  const [search, setSearch] = useState('');
-  const debouncedVal = useDebounce({ value: search, delay: 300 });
+  const [searchQuery, setSearchQuery] = useState('');
+  const debouncedVal = useDebounce({ value: searchQuery, delay: 300 });
 
   return (
     <div className="flex flex-col gap-6 mt-4">
       <div className="flex gap-2 justify-start">
         <SearchForm
           placeholder="Search hiking groups..."
-          onSearch={setSearch}
+          onSearch={setSearchQuery}
+          value={searchQuery}
+          className="min-w-[300px]"
         />
+        <Button className="cursor-pointer" variant="secondary">
+          <Filter />
+          Filter
+        </Button>
         <Button className="cursor-pointer" variant="secondary">
           <Settings2 />
           View

@@ -1,6 +1,6 @@
 'use client';
-import { ReactNode, useState } from 'react';
-import { fetchMembersByGroupId, updateGroupMemberRole } from '../actions/db';
+import { ReactNode, useTransition } from 'react';
+import { updateGroupMemberRole } from '../actions/db';
 import { Card, CardContent } from '@/components/ui/card';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import {
@@ -38,50 +38,72 @@ const roleOptions = [
   { value: 'editor', label: 'Editor' }
 ] as const;
 
-type Member = NonNullable<
-  Awaited<ReturnType<typeof fetchMembersByGroupId>>['data']
->[number];
+type Member = {
+  id: string;
+  member_id: string;
+  group_id: string;
+  first_name: string;
+  last_name: string;
+  email: string;
+  avatar: string | null;
+  role: 'admin' | 'editor';
+};
 
-export default function MemberItem({
+export default function GroupMemberItem({
   member,
-  isAdmin
+  isAdmin,
+  onDelete
 }: {
   member: Member;
   isAdmin: boolean;
+  onDelete: (memberId: string, profileId: string) => void;
 }) {
-  const profile = Array.isArray(member.profile)
-    ? member.profile[0]
-    : member.profile;
+  const [isLoading, startTransition] = useTransition();
 
   return (
-    <Card key={member.id} className="p-4">
+    <Card key={member.member_id} className="p-4">
       <CardContent className="flex p-0">
         <div className="flex flex-1 gap-2 items-center">
-          <Avatar className="w-12 h-12">
-            <AvatarImage src={profile?.avatar || undefined} />
-            <AvatarFallback>{profile.first_name?.charAt(0)}</AvatarFallback>
+          <Avatar className="w-12 h-12 overflow-hidden">
+            <AvatarImage
+              src={member.avatar || undefined}
+              className="object-cover object-top h-full w-full"
+            />
+            <AvatarFallback>{member.first_name?.charAt(0)}</AvatarFallback>
           </Avatar>
           <div className="flex flex-col">
             <p className="font-medium">
-              {profile.first_name} {profile.last_name}
+              {member.first_name} {member.last_name}
             </p>
             <p className="text-sm text-muted-foreground">
-              {profile.email} &bull;{' '}
+              {member.email} &bull;{' '}
               <span className="capitalize">{member.role}</span>
             </p>
           </div>
         </div>
         {isAdmin && (
-          <div className="flex gap-4 items-center">
+          <div className="flex gap-2 items-center">
             <ChangeRoleDialog member={member}>
-              <Button variant="secondary">
+              <Button variant="secondary" className="cursor-pointer">
                 <ChevronsUpDown />
                 Change Role
               </Button>
             </ChangeRoleDialog>
-            <Button variant="destructive" size="icon">
-              <Trash className="size-5" />
-            </Button>
+            <ConfirmRemoveDialog
+              fullname={`${member.first_name} ${member.last_name}`}
+              loading={isLoading}
+              onConfirm={() =>
+                startTransition(() => onDelete(member.id, member.member_id))
+              }
+            >
+              <Button
+                variant="destructive"
+                size="icon"
+                className="cursor-pointer"
+              >
+                <Trash className="size-5" />
+              </Button>
+            </ConfirmRemoveDialog>
           </div>
         )}
       </CardContent>
@@ -96,10 +118,6 @@ function ChangeRoleDialog({
   member: Member;
   children: ReactNode;
 }) {
-  const profile = Array.isArray(member.profile)
-    ? member.profile[0]
-    : member.profile;
-
   const form = useForm({
     resolver: zodResolver(roleSchema),
     defaultValues: {
@@ -131,7 +149,7 @@ function ChangeRoleDialog({
           <DialogDescription>
             Change{' '}
             <span className="font-bold">
-              {profile.first_name} {profile.last_name}'s
+              {member.first_name} {member.last_name}'s
             </span>{' '}
             role.
           </DialogDescription>
@@ -178,6 +196,54 @@ function ChangeRoleDialog({
                 </div>
               </form>
             </Form>
+          </div>
+        </DialogHeader>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+function ConfirmRemoveDialog({
+  children,
+  fullname,
+  loading,
+  onConfirm
+}: {
+  children: ReactNode;
+  fullname: string;
+  loading: boolean;
+  onConfirm: () => void;
+}) {
+  return (
+    <Dialog>
+      <DialogTrigger asChild>{children}</DialogTrigger>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>
+            Are you sure you want to remove this member?
+          </DialogTitle>
+          <DialogDescription className="mt-4">
+            This action cannot be undone. This will permanently remove{' '}
+            <span className="font-bold">{fullname}</span> from the group.
+          </DialogDescription>
+          <div className="mt-6 flex gap-2">
+            <Button
+              variant="destructive"
+              className="cursor-pointer"
+              disabled={loading}
+              onClick={onConfirm}
+            >
+              {loading ? 'Loading...' : 'Yes, Delete Member'}
+            </Button>
+            <DialogTrigger asChild>
+              <Button
+                variant="outline"
+                className="cursor-pointer"
+                disabled={loading}
+              >
+                Cancel
+              </Button>
+            </DialogTrigger>
           </div>
         </DialogHeader>
       </DialogContent>

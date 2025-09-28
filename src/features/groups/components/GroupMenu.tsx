@@ -33,14 +33,13 @@ export function GroupMenu({
                 size="lg"
                 className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
               >
-                <Avatar className="h-8 w-8 rounded-lg">
+                <Avatar className="h-8 w-8 overflow-hidden">
                   <AvatarImage
                     src={group.avatar ?? undefined}
                     alt={group.name}
+                    className="object-cover object-top h-full w-full"
                   />
-                  <AvatarFallback className="rounded-lg">
-                    {group.name.charAt(0)}
-                  </AvatarFallback>
+                  <AvatarFallback>{group.name.charAt(0)}</AvatarFallback>
                 </Avatar>
                 <div className="grid flex-1 text-left text-sm leading-tight">
                   <span className="truncate font-medium">{group.name}</span>

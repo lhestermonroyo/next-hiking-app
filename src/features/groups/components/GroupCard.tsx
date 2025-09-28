@@ -7,7 +7,8 @@ import {
   CardContent,
   CardHeader
 } from '@/components/ui/card';
-import { ChevronRight, MapPin, MountainIcon, Star } from 'lucide-react';
+import { format } from 'date-fns';
+import { ChevronRight, MountainIcon, Star } from 'lucide-react';
 import Link from 'next/link';
 import { Fragment } from 'react';
 
@@ -15,7 +16,6 @@ type Group = {
   id: string;
   created_at: string;
   name: string;
-  location: string;
   avatar: string | null;
   status: 'active' | 'inactive';
   avg_rating: number;
@@ -26,21 +26,19 @@ export default function GroupCard({ group }: { group: Group }) {
   return (
     <Card className="transition-transform duration-200 hover:scale-[1.02] hover:shadow-lg">
       <CardHeader className="flex items-center gap-2">
-        <Avatar className="h-8 w-8 rounded-lg">
-          <AvatarImage src={group.avatar ?? undefined} alt={group.name} />
-          <AvatarFallback className="rounded-lg">
-            {group.name.charAt(0)}
-          </AvatarFallback>
+        <Avatar className="h-8 w-8 overflow-hidden">
+          <AvatarImage
+            src={group.avatar ?? undefined}
+            alt={group.name}
+            className="object-cover object-top h-full w-full"
+          />
+          <AvatarFallback>{group.name.charAt(0)}</AvatarFallback>
         </Avatar>
-        <div className="grid flex-1 text-left text-sm leading-tight">
+        <div className="grid flex-1 gap-1 text-left text-sm leading-tight">
           <span className="truncate font-medium">{group.name}</span>
           <div className="flex items-center gap-2">
-            <div className="flex items-center gap-1">
-              <p className="text-sm text-muted-foreground">{group.location}</p>
-            </div>
             {group.status === 'inactive' && (
               <Fragment>
-                &bull;
                 <Badge variant="destructive">Inactive</Badge>
               </Fragment>
             )}
