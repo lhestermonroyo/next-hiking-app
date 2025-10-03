@@ -1,4 +1,5 @@
 import BackButton from '@/components/BackButton';
+import AppSidebarHeader from '@/components/layout/AppSidebarHeader';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { getCurrentProfile } from '@/features/auth/utils/getCurrentUser';
@@ -14,11 +15,9 @@ type Props = {
 
 export default function GroupSettingsPage(props: Props) {
   return (
-    <div className="max-w-3xl mx-auto flex-col gap-6 p-4">
-      <Suspense fallback={<div>Loading...</div>}>
-        <SuspensePage params={props.params} />
-      </Suspense>
-    </div>
+    <Suspense>
+      <SuspensePage params={props.params} />
+    </Suspense>
   );
 }
 
@@ -29,8 +28,27 @@ async function SuspensePage({ params }: Props) {
     return null;
   }
 
+  return (
+    <div className="@container/main">
+      <AppSidebarHeader
+        data={[
+          { title: 'Hiking Groups', href: '/groups' },
+          { title: 'Group Details', href: `/groups/${id}` },
+          { title: 'Group Settings' }
+        ]}
+      />
+      <div className="max-w-3xl mx-auto flex-col gap-6 p-4">
+        <Suspense fallback={<div>Loading...</div>}>
+          <SuspenseComponent groupId={id} />
+        </Suspense>
+      </div>
+    </div>
+  );
+}
+
+async function SuspenseComponent({ groupId }: { groupId: string }) {
   const [groupResult, profile] = await Promise.all([
-    fetchGroupById(id),
+    fetchGroupById(groupId),
     getCurrentProfile()
   ]);
   const { data: group } = groupResult;
@@ -41,7 +59,6 @@ async function SuspensePage({ params }: Props) {
 
   return (
     <div className="flex flex-col gap-4">
-      <BackButton />
       <h1 className="text-3xl font-bold">Group Settings</h1>
       <div className="flex flex-col gap-2">
         <GroupSettingsItem

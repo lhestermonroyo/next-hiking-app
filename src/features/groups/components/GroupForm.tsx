@@ -118,7 +118,7 @@ export function GroupForm({
                     <Textarea
                       {...field}
                       placeholder="Enter your bio"
-                      className="h-36"
+                      className="h-24"
                     />
                   </FormControl>
                   <FormMessage />

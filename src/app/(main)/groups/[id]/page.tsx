@@ -1,5 +1,15 @@
 import BackButton from '@/components/BackButton';
+import HeaderBreadcrumb from '@/components/HeaderBreadcrumb';
+import AppSidebarHeader from '@/components/layout/AppSidebarHeader';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
+import {
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbList,
+  BreadcrumbPage,
+  BreadcrumbSeparator
+} from '@/components/ui/breadcrumb';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -8,6 +18,7 @@ import { fetchGroupByMemberId } from '@/features/group-members/actions/db';
 import { fetchGroupById } from '@/features/groups/actions/db';
 import { format } from 'date-fns';
 import {
+  ChevronRight,
   ExternalLink,
   Facebook,
   Instagram,
@@ -17,12 +28,19 @@ import {
   MountainIcon,
   Music2,
   Phone,
+  Plus,
   Settings2,
   Star,
+  Users,
   Youtube
 } from 'lucide-react';
 import Link from 'next/link';
-import { ForwardRefExoticComponent, RefAttributes, Suspense } from 'react';
+import {
+  ForwardRefExoticComponent,
+  Fragment,
+  RefAttributes,
+  Suspense
+} from 'react';
 
 type Props = {
   params: Promise<{ id: string }>;
@@ -30,10 +48,18 @@ type Props = {
 
 export default function GroupPage(props: Props) {
   return (
-    <div className="max-w-7xl mx-auto flex-col gap-6 p-4">
-      <Suspense fallback={<div>Loading...</div>}>
-        <SuspensePage params={props.params} />
-      </Suspense>
+    <div className="@container/main">
+      <AppSidebarHeader
+        data={[
+          { title: 'Hiking Groups', href: '/groups' },
+          { title: 'Group Details' }
+        ]}
+      />
+      <div className="max-w-7xl mx-auto flex-col gap-6 p-4">
+        <Suspense fallback={<div>Loading...</div>}>
+          <SuspensePage params={props.params} />
+        </Suspense>
+      </div>
     </div>
   );
 }
@@ -67,39 +93,47 @@ async function SuspensePage({ params }: Props) {
 
   return (
     <div className="flex flex-col gap-8">
-      <div className="flex flex-col gap-4 mb-4">
-        <BackButton />
-        <div className="flex justify-between items-center">
-          <div className="flex gap-4 items-center">
-            <Avatar className="h-16 w-16 overflow-hidden">
-              <AvatarImage
-                src={group?.avatar ?? undefined}
-                alt={group?.name}
-                className="object-cover object-top h-full w-full"
-              />
-              <AvatarFallback>{group?.name.charAt(0)}</AvatarFallback>
-            </Avatar>
-            <div className="flex flex-col gap-0">
-              <h1 className="text-3xl font-bold">{group?.name}</h1>
-              <p className="text-muted-foreground truncate">
-                Active since {format(new Date(group?.created_at), 'MMMM yyyy')}{' '}
-                &bull; Joined as{' '}
-                <span className="capitalize font-bold">{member?.role}</span>
-              </p>
-            </div>
+      <div className="flex justify-between items-center">
+        <div className="flex gap-4 items-center">
+          <Avatar className="h-16 w-16 overflow-hidden">
+            <AvatarImage
+              src={group?.avatar ?? undefined}
+              alt={group?.name}
+              className="object-cover object-top h-full w-full"
+            />
+            <AvatarFallback>{group?.name.charAt(0)}</AvatarFallback>
+          </Avatar>
+          <div className="flex flex-col gap-0">
+            <h1 className="text-3xl font-bold">{group?.name}</h1>
+            <p className="text-muted-foreground truncate">
+              Active since {format(new Date(group?.created_at), 'MMMM yyyy')}{' '}
+              &bull; Joined as{' '}
+              <span className="capitalize font-bold">{member?.role}</span>
+            </p>
           </div>
+        </div>
 
+        <div className="flex gap-2">
+          <Button variant="secondary" asChild>
+            <Link href={`${group.id}/create-event`}>
+              <Plus />
+              Create Event
+            </Link>
+          </Button>
           {isAdmin && (
-            <div className="flex gap-2">
-              <Button asChild>
-                <Link href={`${group.id}/members`}>Manage Members</Link>
+            <Fragment>
+              <Button variant="secondary" asChild>
+                <Link href={`${group.id}/members`}>
+                  <Users />
+                  Manage Members
+                </Link>
               </Button>
               <Button variant="link" asChild>
                 <Link href={`${group.id}/settings`}>
                   <Settings2 className="size-5" />
                 </Link>
               </Button>
-            </div>
+            </Fragment>
           )}
         </div>
       </div>
@@ -113,9 +147,6 @@ async function SuspensePage({ params }: Props) {
           <div className="flex flex-col gap-4">
             <h1 className="text-2xl font-bold">Upcoming Events</h1>
             <div>
-              <Button asChild className="float-right -mb-10">
-                <Link href={`${group.id}/create-event`}>Create Event</Link>
-              </Button>
               <EventsTab />
             </div>
           </div>

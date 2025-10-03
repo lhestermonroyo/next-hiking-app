@@ -193,7 +193,7 @@ const fetchGroupsByMemberId = async (memberId: string) => {
 
   return {
     error: false,
-    data: Array.isArray(data) && data.length > 0 ? data[0] : null
+    data
   };
 };
 
